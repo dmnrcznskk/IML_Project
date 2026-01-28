@@ -10,9 +10,9 @@ def start_api() -> None:
 
 
 def start_dev() -> None:
-    '''
+    """
     Uruchamianie dla developerów backendu
-    '''
+    """
     print(">>> Start: Pobieranie i przetwarzanie danych... <<<")
 
     # Inicjalizacja pipeline'u (z włączonym balansowaniem klas)
