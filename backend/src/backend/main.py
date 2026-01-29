@@ -16,30 +16,9 @@ def start_dev() -> None:
     print(">>> Start: Pobieranie i przetwarzanie danych... <<<")
 
     # Inicjalizacja pipeline'u (z włączonym balansowaniem klas)
-    pipeline = DataPipeline(balance_data=True)
+    pipeline = DataPipeline(balance_data=True, return_as_tuple=True)
 
     # Pobranie gotowych ramek danych
     train_df, val_df, test_df = pipeline.get_data()
 
-    print("\n" + "="*60)
-    print(f" PODSUMOWANIE DANYCH")
-    print("="*60)
-    
-    # 1. Zbiór Treningowy
-    print(f"\n[ZBIÓR TRENINGOWY] Liczba próbek: {len(train_df)}")
-    print("-" * 30)
-    print(train_df.head())
-    print(f"\nLiczba unikalnych klas: {train_df['ClassId'].nunique()}")
-    
-    # 2. Zbiór Walidacyjny
-    print(f"\n[ZBIÓR WALIDACYJNY] Liczba próbek: {len(val_df)}")
-    print("-" * 30)
-    print(val_df.head())
-
-    # 3. Zbiór Testowy
-    print(f"\n[ZBIÓR TESTOWY] Liczba próbek: {len(test_df)}")
-    print("-" * 30)
-    print(test_df.head())
-
-    print("\n" + "="*60)
-    print(">>> Zakończono sukcesem <<<")
+    print(train_df)
