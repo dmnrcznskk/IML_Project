@@ -27,7 +27,7 @@ def start_dev() -> None:
     print(">>> Start: Pobieranie i przetwarzanie danych... <<<")
 
     # Inicjalizacja pipeline'u (z włączonym balansowaniem klas)
-    pipeline = DataPipeline(balance_data=True)
+    pipeline = DataPipeline(balance_data=True, return_as_tuple=True)
 
     # Pobranie gotowych ramek danych
     train_df, val_df, test_df = pipeline.get_data()
