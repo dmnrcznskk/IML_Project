@@ -1,5 +1,5 @@
 import pandas as pd
-from typing import List, Tuple
+from typing import List, Tuple, Union
 
 from backend.data.providers import BaseDatasetProvider, GermanDatasetProvider, PolishDatasetProvider, BelgiumDatasetProvider
 from backend.data import balance
@@ -10,16 +10,17 @@ class DataPipeline:
     Zwraca dataframe, gotowe do dalszego przetwarzania.
     """
 
-    def __init__(self, balance_data: bool = True):
+    def __init__(self, balance_data: bool = True, return_as_tuple: bool = False):
         """
         Inicjalizuje pipeline danych.
 
         Args:
             balance_data (bool): Czy stosować oversampling (balansowanie) klas w zbiorze treningowym.
+            return_as_tuple (bool): Czy zwracać dane jako krotki (X, y) przygotowane pod modele scikit-learn.
         """
         self.balance_data = balance_data
+        self.return_as_tuple = return_as_tuple
         
-        # Lista dostawców danych, z których będziemy korzystać
         self.providers: List[BaseDatasetProvider] = [
             GermanDatasetProvider(),
             PolishDatasetProvider(),
@@ -40,16 +41,14 @@ class DataPipeline:
             return pd.DataFrame()
         return pd.concat(dfs, ignore_index=True)
 
-    def get_data(self) -> Tuple[pd.DataFrame, pd.DataFrame, pd.DataFrame]:
+    def get_data(self) -> Union[Tuple[pd.DataFrame, pd.DataFrame, pd.DataFrame], Tuple[Tuple[pd.DataFrame, pd.Series], Tuple[pd.DataFrame, pd.Series], Tuple[pd.DataFrame, pd.Series]]]:
         """
         Pobiera dane od wszystkich dostawców, łączy je i opcjonalnie balansuje zbiór treningowy.
 
         Returns:
-            Tuple[pd.DataFrame, pd.DataFrame, pd.DataFrame]: 
-            Krotka zawierająca odpowiednio:
-            - Zbiór treningowy (Train)
-            - Zbiór walidacyjny (Val)
-            - Zbiór testowy (Test)
+            Union:
+            - Jeśli return_as_tuple=False: Tuple[pd.DataFrame, pd.DataFrame, pd.DataFrame] (Train, Val, Test)
+            - Jeśli return_as_tuple=True: Tuple[Tuple[X_train, y_train], Tuple[X_val, y_val], Tuple[X_test, y_test]]
         """
         train_dfs: List[pd.DataFrame] = []
         val_dfs: List[pd.DataFrame] = []
@@ -67,5 +66,14 @@ class DataPipeline:
 
         if self.balance_data:
             full_train_df = balance.balance_dataframe(full_train_df)
+
+        if self.return_as_tuple:
+            def split_xy(df: pd.DataFrame) -> Tuple[pd.DataFrame, pd.Series]:
+                if df.empty:
+                    return df, pd.Series(dtype=object)
+                # Zakładamy, że 'ClassId' to kolumna docelowa (y), reszta to cechy (X)
+                return df.drop(columns=['ClassId']), df['ClassId']
+
+            return split_xy(full_train_df), split_xy(full_val_df), split_xy(full_test_df)
 
         return full_train_df, full_val_df, full_test_df
