@@ -2,11 +2,22 @@ import tensorflow as tf
 from backend.data.pipeline import DataPipeline
 import os
 
+
 def start_api() -> None:
     """
     Uruchamia serwer FastAPI
     """
     pass
+
+
+import os
+import shutil
+import cv2
+import numpy as np
+import pandas as pd
+from backend.architectures.conv_model import (
+    TrafficSignConvNN,
+)  # Upewnij się, że import pasuje
 
 
 def start_dev() -> None:
@@ -21,16 +32,16 @@ def start_dev() -> None:
     # Pobranie gotowych ramek danych
     train_df, val_df, test_df = pipeline.get_data()
 
-    print("\n" + "="*60)
+    print("\n" + "=" * 60)
     print(f" PODSUMOWANIE DANYCH")
-    print("="*60)
-    
+    print("=" * 60)
+
     # 1. Zbiór Treningowy
     print(f"\n[ZBIÓR TRENINGOWY] Liczba próbek: {len(train_df)}")
     print("-" * 30)
     print(train_df.head())
     print(f"\nLiczba unikalnych klas: {train_df['ClassId'].nunique()}")
-    
+
     # 2. Zbiór Walidacyjny
     print(f"\n[ZBIÓR WALIDACYJNY] Liczba próbek: {len(val_df)}")
     print("-" * 30)
@@ -41,5 +52,5 @@ def start_dev() -> None:
     print("-" * 30)
     print(test_df.head())
 
-    print("\n" + "="*60)
+    print("\n" + "=" * 60)
     print(">>> Zakończono sukcesem <<<")

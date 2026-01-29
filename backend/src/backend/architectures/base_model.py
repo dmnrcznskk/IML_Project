@@ -3,6 +3,8 @@ from typing import Dict, Any
 from numpy import ndarray
 from pandas import DataFrame
 import numpy as np
+import cv2
+from typing import Tuple
 
 
 class BaseModel(ABC):
@@ -16,25 +18,24 @@ class BaseModel(ABC):
         self.is_trained = False
 
     def train(
-        self, train_data: DataFrame, val_data: DataFrame, config: Dict[str, Any]
+        self,
+        train_data: Tuple[ndarray, ndarray],
+        val_data: Tuple[ndarray, ndarray],
+        config: Dict[str, Any],
     ) -> None:
-        """
-        Funkcja trenująca model wewnątrz
-
-        :param train_data: Description
-        :type train_data: DataFrame
-        :param val_data: Description
-        :type val_data: DataFrame
-        :param config: Description
-        :type config: Dict[str, Any]
-        """
         pass
 
     @abstractmethod
     def predict_proba(self, image: ndarray) -> ndarray:
         """
-        Zwraca macierz prawdopodobieństw o kształcie (N, num_classes).
-        Dla pojedynczego zdjęcia N=1.
+        Funkcja do przewidywania z prawdopodobieństwem
+
+        Args:
+            image (ndarray): załadowny obraz za pomocą cv2
+
+        Returns:
+            ndarray: macierz prawdopodobieństw o kształcie (N, num_classes) Dla pojedynczego zdjęcia N=1.
+
         """
         pass
 
@@ -48,13 +49,13 @@ class BaseModel(ABC):
     @abstractmethod
     def save(self, path: str) -> None:
         """
-        Zapisuje model w odpowiednim dla niego formacie w podanym katalogu.
+        Zapisuje model w podnaj ścieżce w formacie .keras
         """
         pass
 
     @classmethod
     @abstractmethod
-    def load(cls, path: str) -> None:
+    def load(cls, path: str) -> any:
         """
         Metoda fabryczna (Factory Method).
         Tworzy instancję klasy, ładuje do niej wskazany model oraz zwracą obiekt tej klasy z załadowanymi wartościami.
