@@ -1,11 +1,5 @@
-import os
-import cv2
-import numpy as np
 import tensorflow as tf
-from typing import Dict, Any, Tuple
-from numpy import ndarray
-from backend.architectures.base_model import BaseModel
-
+from typing import Tuple
 from backend.architectures.neural_networks.keras_base import KerasBaseModel
 
 
