@@ -8,11 +8,9 @@ from backend.architectures.base_model import BaseModel
 import json
 
 
-class TrafficSignConvNN(BaseModel):
+class KerasBaseModel(BaseModel):
     """
-    Konwolucyjna sieć neuronowa (CNN).
-    W tej wersji metoda 'train' oczekuje już przetworzonych danych (X, y),
-    a nie surowego DataFrame.
+    Klasa bazowa dla sieci neuronowych. Dziedziczy po BaseModel i należy nadpisać metodę _create_model w klasach potomnych
     """
 
     def __init__(
@@ -38,51 +36,10 @@ class TrafficSignConvNN(BaseModel):
 
     def _create_model(
         self, input_shape: Tuple[int, int], num_classes: int
-    ) -> tf.keras.Sequential:
-        """
-        Wewnętrzna metoda do tworzenia architektury modelu.
-        """
-        model = tf.keras.models.Sequential(name="TrafficSignConvNN")
-        k_input_shape = (input_shape[0], input_shape[1], 3)
-
-        # Blok 1
-        model.add(
-            tf.keras.layers.Conv2D(
-                32, (3, 3), padding="same", input_shape=k_input_shape
-            )
+    ) -> tf.keras.Model:
+        raise NotImplementedError(
+            "Musisz zaimplementować _create_model w klasie pochodnej!"
         )
-        model.add(tf.keras.layers.BatchNormalization())
-        model.add(tf.keras.layers.Activation("relu"))
-        model.add(tf.keras.layers.MaxPooling2D((2, 2)))
-
-        # Blok 2
-        model.add(tf.keras.layers.Conv2D(64, (3, 3), padding="same"))
-        model.add(tf.keras.layers.BatchNormalization())
-        model.add(tf.keras.layers.Activation("relu"))
-        model.add(tf.keras.layers.MaxPooling2D((2, 2)))
-
-        # Blok 3
-        model.add(tf.keras.layers.Conv2D(128, (3, 3), padding="same"))
-        model.add(tf.keras.layers.BatchNormalization())
-        model.add(tf.keras.layers.Activation("relu"))
-        model.add(tf.keras.layers.MaxPooling2D((2, 2)))
-
-        # Głowica klasyfikująca
-        model.add(tf.keras.layers.Flatten())
-        model.add(tf.keras.layers.Dense(256))
-        model.add(tf.keras.layers.Activation("relu"))
-        model.add(tf.keras.layers.Dropout(0.5))
-
-        model.add(tf.keras.layers.Dense(num_classes))
-        model.add(tf.keras.layers.Activation("softmax"))
-
-        model.compile(
-            optimizer="adam",
-            loss="sparse_categorical_crossentropy",
-            metrics=["accuracy"],
-        )
-
-        return model
 
     def train(
         self,
@@ -91,7 +48,7 @@ class TrafficSignConvNN(BaseModel):
         config: Dict[str, Any],
     ) -> None:
         """
-        Trenuje model przy użyciu przygotowanych danych (macierzy NumPy).
+        Trenuje model przy użyciu podanych danych. Dane muszą być już przetworzone i gotowe do użycia w Kerasie.
 
         Args:
             train_data (Tuple[ndarray, ndarray]): Zbiór treningowy w postaci krotki (X_train, y_train).
