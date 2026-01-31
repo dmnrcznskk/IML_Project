@@ -15,42 +15,39 @@ import shutil
 import cv2
 import numpy as np
 import pandas as pd
-from backend.architectures.conv_model import (
+from backend.architectures.neural_networks.conv_model import (
     TrafficSignConvNN,
 )  # Upewnij się, że import pasuje
-
+from backend.mappers.map_classes import get_classes_to_names
+from backend.train_and_evaluate.evaluate.evaluator import ModelEvaluator
+from backend.utils.image_loader import load_images_from_paths
 
 def start_dev() -> None:
     """
     Uruchamianie dla developerów backendu
     """
-    print(">>> Start: Pobieranie i przetwarzanie danych... <<<")
+    print(">>> Demo ewaluacji <<<")
+    
+    pipeline = DataPipeline(balance_data=False, return_as_tuple=False)
+    _, _, test_df = pipeline.get_data()
 
-    # Inicjalizacja pipeline'u (z włączonym balansowaniem klas)
-    pipeline = DataPipeline(balance_data=True, return_as_tuple=True)
+    test_df = test_df.sample(50)
+    
+    print(f"Przetwarzanie {len(test_df)} zdjęć...")
 
-    # Pobranie gotowych ramek danych
-    train_df, val_df, test_df = pipeline.get_data()
+    X_images = load_images_from_paths(test_df['Path'].values, target_size=(32, 32))
+    y_test = test_df['ClassId'].values
 
-    print("\n" + "=" * 60)
-    print(f" PODSUMOWANIE DANYCH")
-    print("=" * 60)
+    # Zabezpieczenie, gdyby nic się nie wczytało
+    if len(X_images) == 0:
+        print("Nie udało się wczytać żadnych zdjęć.")
+        return
 
-    # 1. Zbiór Treningowy
-    print(f"\n[ZBIÓR TRENINGOWY] Liczba próbek: {len(train_df)}")
-    print("-" * 30)
-    print(train_df.head())
-    print(f"\nLiczba unikalnych klas: {train_df['ClassId'].nunique()}")
-
-    # 2. Zbiór Walidacyjny
-    print(f"\n[ZBIÓR WALIDACYJNY] Liczba próbek: {len(val_df)}")
-    print("-" * 30)
-    print(val_df.head())
-
-    # 3. Zbiór Testowy
-    print(f"\n[ZBIÓR TESTOWY] Liczba próbek: {len(test_df)}")
-    print("-" * 30)
-    print(test_df.head())
-
-    print("\n" + "=" * 60)
-    print(">>> Zakończono sukcesem <<<")
+    model = TrafficSignConvNN(create_model=True) 
+    
+    names = get_classes_to_names()
+    evaluator = ModelEvaluator(class_names=names)
+    
+    results = evaluator.evaluate(model, X_images, y_test, show_plot=True)
+    
+    print("Koniec demo.")
