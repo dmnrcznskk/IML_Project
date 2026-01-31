@@ -15,42 +15,55 @@ import shutil
 import cv2
 import numpy as np
 import pandas as pd
-from backend.architectures.conv_model import (
+from backend.architectures.neural_networks.conv_model import (
     TrafficSignConvNN,
 )  # Upewnij się, że import pasuje
-
+from backend.mappers.map_classes import get_classes_to_names
+from backend.train_and_evaluate.evaluate.evaluator import ModelEvaluator
+from backend.utils.image_loader import load_images_from_paths
 
 def start_dev() -> None:
     """
     Uruchamianie dla developerów backendu
     """
-    print(">>> Start: Pobieranie i przetwarzanie danych... <<<")
+    print(">>> TEST CALLBACKÓW START <<<")
+    
+    # 1. Pobieramy dane (zwraca DataFrame)
+    # Wyłączamy balansowanie, żeby było szybciej
+    pipeline = DataPipeline(balance_data=False, return_as_tuple=False)
+    train_df, val_df, _ = pipeline.get_data()
 
-    # Inicjalizacja pipeline'u (z włączonym balansowaniem klas)
-    pipeline = DataPipeline(balance_data=True, return_as_tuple=True)
+    # 2. Bierzemy MIKRO próbkę (np. 50 zdjęć treningowych i 20 walidacyjnych)
+    train_sample = train_df.sample(50)
+    val_sample = val_df.sample(20)
+    
+    print(f"Przygotowanie danych: Train={len(train_sample)}, Val={len(val_sample)}")
 
-    # Pobranie gotowych ramek danych
-    train_df, val_df, test_df = pipeline.get_data()
+    # 3. Ładujemy obrazki z dysku (używając Twojego nowego utils)
+    X_train = load_images_from_paths(train_sample['Path'].values)
+    y_train = train_sample['ClassId'].values
+    
+    X_val = load_images_from_paths(val_sample['Path'].values)
+    y_val = val_sample['ClassId'].values
 
-    print("\n" + "=" * 60)
-    print(f" PODSUMOWANIE DANYCH")
-    print("=" * 60)
+    # 4. Konfiguracja treningu "na niby"
+    config = {
+        "epochs": 2,          # Tylko 2 epoki! Tyle wystarczy, żeby odpalić callbacki.
+        "batch_size": 8,      # Mały batch
+        "patience": 5,        # Parametr dla EarlyStopping (nieistotny przy 2 epokach, ale wymagany przez config)
+        "log_dir": "logs_test",           # Opcjonalnie: osobny katalog na testy
+        "checkpoint_dir": "models/test"   # Opcjonalnie: osobny katalog na testy
+    }
 
-    # 1. Zbiór Treningowy
-    print(f"\n[ZBIÓR TRENINGOWY] Liczba próbek: {len(train_df)}")
-    print("-" * 30)
-    print(train_df.head())
-    print(f"\nLiczba unikalnych klas: {train_df['ClassId'].nunique()}")
-
-    # 2. Zbiór Walidacyjny
-    print(f"\n[ZBIÓR WALIDACYJNY] Liczba próbek: {len(val_df)}")
-    print("-" * 30)
-    print(val_df.head())
-
-    # 3. Zbiór Testowy
-    print(f"\n[ZBIÓR TESTOWY] Liczba próbek: {len(test_df)}")
-    print("-" * 30)
-    print(test_df.head())
-
-    print("\n" + "=" * 60)
-    print(">>> Zakończono sukcesem <<<")
+    # 5. Inicjalizacja i trening
+    model = TrafficSignConvNN(create_model=True)
+    
+    print("Rozpoczynam próbny trening...")
+    model.train(
+        train_data=(X_train, y_train),
+        val_data=(X_val, y_val),
+        config=config
+    )
+    
+    print(">>> TEST ZAKOŃCZONY <<<")
+    print("Sprawdź teraz foldery 'logs_test' oraz 'models/test'!")
