@@ -1,9 +1,7 @@
 from abc import ABC, abstractmethod
 from typing import Dict, Any
 from numpy import ndarray
-from pandas import DataFrame
 import numpy as np
-import cv2
 from typing import Tuple
 
 
