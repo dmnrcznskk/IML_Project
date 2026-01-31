@@ -6,7 +6,7 @@ from typing import Dict, Any, Tuple
 from numpy import ndarray
 from backend.architectures.base_model import BaseModel
 import json
-
+from backend.utils.callbacks import get_callbacks
 
 class KerasBaseModel(BaseModel):
     """
@@ -61,6 +61,10 @@ class KerasBaseModel(BaseModel):
         X_train, y_train = train_data
         X_val, y_val = val_data
 
+        model_name = self.model.name if hasattr(self.model, "name") else "KerasModel"
+        
+        callbacks = get_callbacks(config, model_name)
+
         print(f"Rozpoczynam trening na {len(X_train)} próbkach...")
 
         self.model.fit(
@@ -68,6 +72,7 @@ class KerasBaseModel(BaseModel):
             y=y_train,
             validation_data=(X_val, y_val),
             epochs=epochs,
+            callbacks=callbacks,
             batch_size=batch_size,
         )
         self.is_trained = True
