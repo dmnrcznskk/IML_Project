@@ -50,9 +50,6 @@ class ModelEvaluator:
 
         acc = accuracy_score(y_test, y_pred)
         
-        # --- POPRAWKA: Definiujemy labels jawnie ---
-        # Dzięki temu sklearn wie, że target_names[0] to klasa 0, target_names[1] to klasa 1 itd.
-        # Nawet jeśli w y_test nie ma wszystkich klas.
         all_labels = None
         if self.target_names:
             all_labels = list(range(len(self.target_names)))

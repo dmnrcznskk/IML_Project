@@ -28,17 +28,13 @@ def start_dev() -> None:
     """
     print(">>> Demo ewaluacji <<<")
     
-    # 1. Pobieramy dane (DataFrame ze ścieżkami)
     pipeline = DataPipeline(balance_data=False, return_as_tuple=False)
     _, _, test_df = pipeline.get_data()
 
-    # 2. Bierzemy próbkę (opcjonalnie)
     test_df = test_df.sample(50)
     
     print(f"Przetwarzanie {len(test_df)} zdjęć...")
 
-    # 3. MAGIA: Zamieniamy ścieżki na macierz obrazów jedną funkcją
-    # Zwróci macierz (N, 32, 32, 3), którą model kocha
     X_images = load_images_from_paths(test_df['Path'].values, target_size=(32, 32))
     y_test = test_df['ClassId'].values
 
@@ -46,19 +42,12 @@ def start_dev() -> None:
     if len(X_images) == 0:
         print("Nie udało się wczytać żadnych zdjęć.")
         return
-        
-    # Ważne: musimy też przyciąć y_test, jeśli jakieś zdjęcia zostały pominięte (np. błędy odczytu)
-    # W tej prostej wersji zakładamy, że wczytało się wszystko. 
-    # W wersji pro: load_images_from_paths powinno zwracać też poprawne indeksy.
-    # Ale przy datasetach GTSRB zazwyczaj pliki są ok.
 
-    # 4. Model i Ewaluacja
     model = TrafficSignConvNN(create_model=True) 
     
     names = get_classes_to_names()
     evaluator = ModelEvaluator(class_names=names)
     
-    # Teraz do evaluate wchodzi czysta macierz obrazów (numpy array), zero stringów!
     results = evaluator.evaluate(model, X_images, y_test, show_plot=True)
     
     print("Koniec demo.")
