@@ -53,7 +53,7 @@ class KerasBaseModel(BaseModel):
         Args:
             train_data (Tuple[ndarray, ndarray]): Zbiór treningowy w postaci krotki (X_train, y_train).
             val_data (Tuple[ndarray, ndarray]): Zbiór walidacyjny w tym samym formacie co train_data.
-            config (Dict[str, Any]): Słownik konfiguracji treningu (wymagane klucze np.: 'epochs', 'batch_size').
+            config (Dict[str, Any]): Słownik konfiguracji treningu (wymagane 'epochs', 'batch_size').
         """
         epochs = config.get("epochs", 10)
         batch_size = config.get("batch_size", 32)
