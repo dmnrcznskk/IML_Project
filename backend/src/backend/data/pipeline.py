@@ -2,8 +2,14 @@ import pandas as pd
 import numpy as np
 from typing import List, Tuple, Union
 
-from backend.data.providers import BaseDatasetProvider, GermanDatasetProvider, PolishDatasetProvider, BelgiumDatasetProvider
+from backend.data.providers import (
+    BaseDatasetProvider,
+    GermanDatasetProvider,
+    PolishDatasetProvider,
+    BelgiumDatasetProvider,
+)
 from backend.data import balance
+
 
 class DataPipeline:
     """
@@ -21,12 +27,12 @@ class DataPipeline:
         """
         self.balance_data = balance_data
         self.return_as_tuple = return_as_tuple
-        
+
         # Lista dostawców danych, z których będziemy korzystać
         self.providers: List[BaseDatasetProvider] = [
             GermanDatasetProvider(),
             PolishDatasetProvider(),
-            BelgiumDatasetProvider()
+            BelgiumDatasetProvider(),
         ]
 
     def _merge_dataframes(self, dfs: List[pd.DataFrame]) -> pd.DataFrame:
@@ -43,7 +49,16 @@ class DataPipeline:
             return pd.DataFrame()
         return pd.concat(dfs, ignore_index=True)
 
-    def get_data(self) -> Union[Tuple[pd.DataFrame, pd.DataFrame, pd.DataFrame], Tuple[Tuple[np.ndarray, np.ndarray], Tuple[np.ndarray, np.ndarray], Tuple[np.ndarray, np.ndarray]]]:
+    def get_data(
+        self,
+    ) -> Union[
+        Tuple[pd.DataFrame, pd.DataFrame, pd.DataFrame],
+        Tuple[
+            Tuple[np.ndarray, np.ndarray],
+            Tuple[np.ndarray, np.ndarray],
+            Tuple[np.ndarray, np.ndarray],
+        ],
+    ]:
         """
         Pobiera dane od wszystkich dostawców, łączy je i opcjonalnie balansuje zbiór treningowy.
 
@@ -71,16 +86,21 @@ class DataPipeline:
             full_train_df = balance.balance_dataframe(full_train_df)
 
         if self.return_as_tuple:
+
             def split_xy_numpy(df: pd.DataFrame) -> Tuple[np.ndarray, np.ndarray]:
                 if df.empty:
                     return np.array([]), np.array([])
-                
+
                 # Zakładamy, że 'ClassId' to kolumna docelowa (y)
-                y = df['ClassId'].to_numpy()
+                y = df["ClassId"].to_numpy()
                 # Reszta kolumn to cechy (X)
-                X = df.drop(columns=['ClassId']).to_numpy()
+                X = df.drop(columns=["ClassId"]).to_numpy()
                 return X, y
 
-            return split_xy_numpy(full_train_df), split_xy_numpy(full_val_df), split_xy_numpy(full_test_df)
+            return (
+                split_xy_numpy(full_train_df),
+                split_xy_numpy(full_val_df),
+                split_xy_numpy(full_test_df),
+            )
 
         return full_train_df, full_val_df, full_test_df
