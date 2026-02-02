@@ -1,40 +1,34 @@
-/* Importujemy font, który wygląda bardziej "technicznie" (opcjonalne, ale polecane) */
 @import url('https://fonts.googleapis.com/css2?family=Inter:wght@700&display=swap');
 
 :root {
     --color-light: #635985;
     --color-white: #ffffff;
-    --color-accent: #a39bd6; /* Jaśniejszy fiolet do gradientu */
+    --color-accent: #a39bd6;
 }
 
 body {
-    /* Upewniamy się, że tło jest tym Twoim ciemnym kolorem */
     background-color: #18122B !important;
     font-family: 'Inter', system-ui, -apple-system, sans-serif;
 }
 
 .text-styling {
-    color: var(--color-white); /* Fallback dla starszych przeglądarek */
-    letter-spacing: -1px; /* Ciaśniejsze litery wyglądają nowocześniej */
+    color: var(--color-white);
+    letter-spacing: -1px;
     line-height: 1.2;
 }
 
-/* Stylizacja dla drugiej linii tekstu (Znaków Drogowych) */
 .text-highlight {
-    /* To tworzy gradient na tekście */
     background: linear-gradient(90deg, var(--color-white) 0%, var(--color-light) 100%);
     -webkit-background-clip: text;
     -webkit-text-fill-color: transparent;
     background-clip: text;
     
-    /* Dodajemy subtelny blask */
     filter: drop-shadow(0px 0px 10px rgba(99, 89, 133, 0.3));
     
     position: relative;
     display: inline-block;
 }
 
-/* Opcjonalnie: Mały akcent pod tekstem, jak "skaner" */
 .heading::after {
     content: '';
     display: block;

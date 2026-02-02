@@ -1,23 +1,21 @@
-/* Stylizacja Boxa */
 .upload-box {
-    border: 2px dashed var(--color-light); /* Twój jasny fiolet */
+    border: 2px dashed var(--color-light);
     border-radius: 12px;
     padding: 3rem 1rem;
     text-align: center;
     cursor: pointer;
     transition: all 0.3s ease;
-    background-color: rgba(255, 255, 255, 0.02); /* Minimalnie jaśniejsze od tła */
+    background-color: rgba(255, 255, 255, 0.02);
     color: var(--color-light);
 }
 
 .upload-box:hover {
-    border-color: var(--color-accent); /* Jaśniejszy fiolet przy najechaniu */
-    background-color: rgba(99, 89, 133, 0.1); /* Delikatne podświetlenie tła */
-    transform: translateY(-2px); /* Lekkie uniesienie */
+    border-color: var(--color-accent);
+    background-color: rgba(99, 89, 133, 0.1);
+    transform: translateY(-2px); 
     color: var(--color-white);
 }
 
-/* Stylizacja tekstu wewnątrz boxa */
 .upload-text {
     font-size: 0.85rem;
     text-transform: uppercase;
@@ -26,11 +24,10 @@
     margin-top: 10px;
 }
 
-/* Stylizacja ikony */
 .upload-box svg {
     transition: transform 0.3s ease;
 }
 
 .upload-box:hover svg {
-    transform: scale(1.1); /* Ikona powiększa się przy najechaniu */
+    transform: scale(1.1);
 }
