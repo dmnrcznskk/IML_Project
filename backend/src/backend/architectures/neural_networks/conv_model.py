@@ -1,5 +1,7 @@
-import tensorflow as tf
 from typing import Tuple
+
+import tensorflow as tf
+
 from backend.architectures.neural_networks.keras_base import KerasBaseModel
 
 
@@ -14,12 +16,10 @@ class TrafficSignConvNN(KerasBaseModel):
         model = tf.keras.models.Sequential(name="TrafficSignConvNN")
         k_input_shape = (input_shape[0], input_shape[1], 3)
 
+        model.add(tf.keras.layers.Input(shape=k_input_shape))
+
         # Blok 1
-        model.add(
-            tf.keras.layers.Conv2D(
-                32, (3, 3), padding="same", input_shape=k_input_shape
-            )
-        )
+        model.add(tf.keras.layers.Conv2D(32, (3, 3), padding="same"))
         model.add(tf.keras.layers.BatchNormalization())
         model.add(tf.keras.layers.Activation("relu"))
         model.add(tf.keras.layers.MaxPooling2D((2, 2)))

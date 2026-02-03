@@ -1,8 +1,9 @@
 from abc import ABC, abstractmethod
 from typing import Dict, Any
-from numpy import ndarray
-import numpy as np
 from typing import Tuple
+
+import numpy as np
+from numpy import ndarray
 
 
 class BaseModel(ABC):
@@ -37,12 +38,16 @@ class BaseModel(ABC):
         """
         pass
 
-    def predict(self, image: ndarray) -> ndarray:
+    def predict(self, image: ndarray) -> Tuple[ndarray, ndarray]:
         """
-        Przyjmuje obraz (np. numpy array) i zwraca predykcję w formie numeru klasy.
+        Przyjmuje obraz (np. numpy array) i zwraca predykcję w formie numeru klasy oraz pewności wyboru tej klasy.
         """
         probs = self.predict_proba(image)
-        return np.argmax(probs, axis=1)
+
+        predictions = np.argmax(probs, axis=1)
+        confidence = np.max(probs, axis=1)
+
+        return predictions, confidence
 
     @abstractmethod
     def save(self, path: str) -> None:

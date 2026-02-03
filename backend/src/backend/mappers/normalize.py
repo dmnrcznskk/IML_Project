@@ -1,9 +1,9 @@
 import os
+from typing import Dict, Union
+
 import pandas as pd
 from PIL import Image
-from typing import Dict, Any, Union
 
-from backend.mappers.map_classes import get_belgium_mapping, get_polish_mapping
 
 def find_target_folder(base_path: str, target_name: str) -> str:
     """

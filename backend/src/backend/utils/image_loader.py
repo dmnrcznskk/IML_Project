@@ -1,7 +1,9 @@
-import cv2
 import os
-import numpy as np
 from typing import List, Union, Optional, Tuple
+
+import cv2
+import numpy as np
+
 
 def load_images_from_paths(
     paths: Union[List[str], np.ndarray, str], 

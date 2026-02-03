@@ -1,13 +1,15 @@
 import os
+from abc import ABC, abstractmethod
+from typing import Tuple
+
 import kagglehub
 import pandas as pd
-from abc import ABC, abstractmethod
-from typing import Tuple, List
 from sklearn.model_selection import train_test_split
 
-from backend.mappers.normalize import to_german_standard
 from backend.mappers import map_classes
 from backend.mappers.img_format import map_ppm_to_png
+from backend.mappers.normalize import to_german_standard
+
 
 class BaseDatasetProvider(ABC):
     """
