@@ -1,6 +1,3 @@
-import tensorflow as tf
-from backend.data.pipeline import DataPipeline
-import os
 from backend.utils.conosle_app import ConsoleApp
 
 

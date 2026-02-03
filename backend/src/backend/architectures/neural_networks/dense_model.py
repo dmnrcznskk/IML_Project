@@ -14,7 +14,8 @@ class TrafficSignDenseNN(KerasBaseModel):
         model = tf.keras.models.Sequential(name="TrafficSignDenseNN")
         k_input_shape = (input_shape[0], input_shape[1], 3)
 
-        model.add(tf.keras.layers.Flatten(input_shape=k_input_shape))
+        model.add(tf.keras.layers.Input(shape=k_input_shape))
+        model.add(tf.keras.layers.Flatten())
         model.add(tf.keras.layers.Dense(512, activation="relu"))
         model.add(tf.keras.layers.BatchNormalization())
         model.add(tf.keras.layers.Dense(256, activation="relu"))
