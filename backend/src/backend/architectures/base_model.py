@@ -1,8 +1,9 @@
 from abc import ABC, abstractmethod
 from typing import Dict, Any
-from numpy import ndarray
-import numpy as np
 from typing import Tuple
+
+import numpy as np
+from numpy import ndarray
 
 
 class BaseModel(ABC):

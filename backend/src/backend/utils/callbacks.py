@@ -1,6 +1,8 @@
 import os
-import tensorflow as tf
 from typing import List, Dict, Any
+
+import tensorflow as tf
+
 
 def get_callbacks(config: Dict[str, Any], model_name: str) -> List[tf.keras.callbacks.Callback]:
     """

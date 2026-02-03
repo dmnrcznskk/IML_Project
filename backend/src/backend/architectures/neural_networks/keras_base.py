@@ -1,12 +1,15 @@
+import json
 import os
+from typing import Dict, Any, Tuple
+
 import cv2
 import numpy as np
 import tensorflow as tf
-from typing import Dict, Any, Tuple
 from numpy import ndarray
+
 from backend.architectures.base_model import BaseModel
-import json
 from backend.utils.callbacks import get_callbacks
+
 
 class KerasBaseModel(BaseModel):
     """
@@ -82,6 +85,8 @@ class KerasBaseModel(BaseModel):
         Zwraca prawdopodobieństwa dla pojedynczego obrazu.
         Pamiętaj: Image musi być w formacie BGR (jeśli wczytany przez cv2)
         """
+        #TODO zrobienie osobnej funkcji do obróbki danych
+
         target_size = (self.input_shape[1], self.input_shape[0])
 
         img_resized = cv2.resize(image, target_size)

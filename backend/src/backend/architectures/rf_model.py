@@ -1,10 +1,12 @@
-import os
-import cv2
 import json
-import joblib
+import os
 from typing import Dict, Any, Optional, Tuple
+
+import cv2
+import joblib
 from numpy import ndarray
 from sklearn.ensemble import RandomForestClassifier
+
 from backend.architectures.base_model import BaseModel
 
 
@@ -59,6 +61,7 @@ class TrafficSignRF(BaseModel):
         print(f"Trening zakończony. Accuracy na zbiorze walidacyjnym: {val_score:.4f}")
 
     def predict_proba(self, image: ndarray) -> ndarray:
+        #TODO zrobienie osobnej funkcji do obróbki danych
         target_size = (self.input_shape[1], self.input_shape[0])
         img = cv2.resize(image, target_size)
         img = cv2.cvtColor(img, cv2.COLOR_BGR2RGB)

@@ -1,13 +1,14 @@
 import os
-import sys
-import pandas as pd
+
 import numpy as np
-from backend.architectures.rf_model import TrafficSignRF
+
 from backend.architectures.neural_networks.conv_model import TrafficSignConvNN
 from backend.architectures.neural_networks.dense_model import TrafficSignDenseNN
+from backend.architectures.rf_model import TrafficSignRF
 from backend.data.pipeline import DataPipeline
-from backend.utils.image_loader import load_images_from_paths
+from backend.evaluate.evaluator import ModelEvaluator
 from backend.mappers.map_classes import get_classes_to_names
+from backend.utils.image_loader import load_images_from_paths
 
 
 class ConsoleApp:
@@ -15,6 +16,14 @@ class ConsoleApp:
         self.model = None
         self.pipeline = DataPipeline(balance_data=True, return_as_tuple=True)
         self.running = True
+        
+        print(">> Inicjalizacja pipeline i pobieranie danych (może to chwilę potrwać)...")
+        try:
+            self.train_data_raw, self.val_data_raw, self.test_data_raw = self.pipeline.get_data() # type: ignore
+            print(">> Dane załadowane do pamięci cache.")
+        except Exception as e:
+            print(f"!! Błąd podczas wstępnego pobierania danych: {e}")
+            self.train_data_raw = self.val_data_raw = self.test_data_raw = None
 
     def create_model_workflow(self):
         print("\n--- TWORZENIE NOWEGO MODELU ---")
@@ -46,13 +55,15 @@ class ConsoleApp:
             print("!! Błąd: Najpierw stwórz model.")
             return
 
-        print("1. Pobieranie danych...")
-        try:
-            (X_train_raw, y_train), (X_val_raw, y_val), _ = self.pipeline.get_data()  # type: ignore
-        except Exception as e:
-            print(f"!! Błąd pipeline: {e}")
+        if self.train_data_raw is None or self.val_data_raw is None:
+            print("!! Błąd: Brak danych treningowych w cache.")
             return
 
+        print("1. Korzystanie z danych z cache...")
+        X_train_raw, y_train = self.train_data_raw
+        X_val_raw, y_val = self.val_data_raw
+
+        #TODO zrobienie osobnej funkcji do obróbki danych
         train_paths = X_train_raw[:, -1] if X_train_raw.ndim > 1 else X_train_raw
         val_paths = X_val_raw[:, -1] if X_val_raw.ndim > 1 else X_val_raw
 
@@ -167,8 +178,62 @@ class ConsoleApp:
 
             print(f"\n>>> WYNIK: {class_name} (ID: {pred_idx})")
             print(f">>> Pewność: {confidence:.2%}")
+
+            show_all = input("\nCzy wyświetlić rozpiskę wszystkich klas? (t/n): ").lower() == 't'
+            if show_all:
+                threshold = float(input("Pokaż klasy powyżej (np. 0.01 dla 1%): ") or 0.01)
+                probs = self.model.predict_proba(image)
+                if isinstance(probs, np.ndarray):
+                    probs = probs.flatten()
+                    
+                    print(f"\nKlasy powyżej {threshold:.2%}:")
+                    found = False
+                    sorted_indices = np.argsort(probs)[::-1]
+                    for idx in sorted_indices:
+                        p = probs[idx]
+                        if p >= threshold:
+                            c_name = names.get(idx, f"Class {idx}")
+                            print(f"- {c_name} (ID: {idx}): {p:.2%}")
+                            found = True
+                    if not found:
+                        print("- Brak klas spełniających kryterium.")
+
         except Exception as e:
             print(f"!! Błąd podczas predykcji: {e}")
+
+    def evaluation_workflow(self):
+        print("\n=== EWALUACJA MODELU (TEST SET) ===")
+        if self.model is None:
+            print("!! Brak modelu do ewaluacji.")
+            return
+
+        if self.test_data_raw is None:
+            print("!! Błąd: Brak danych testowych w cache.")
+            return
+
+        print("1. Korzystanie z danych testowych z cache...")
+        X_test_raw, y_test = self.test_data_raw
+        if X_test_raw.size == 0:
+            print("!! Brak danych testowych.")
+            return
+
+        test_paths = X_test_raw[:, -1] if X_test_raw.ndim > 1 else X_test_raw
+        print(f"2. Wczytywanie obrazów ({len(test_paths)})...")
+        X_test = load_images_from_paths(test_paths, target_size=(32, 32))
+
+        if X_test is None:
+            print("!! Błąd wczytywania obrazów.")
+            return
+
+        try:
+            names = get_classes_to_names()
+            evaluator = ModelEvaluator(class_names=names)
+            
+            print("3. Uruchamianie ewaluacji...")
+            evaluator.evaluate(self.model, X_test, y_test, show_plot=False)
+            
+        except Exception as e:
+            print(f"!! Błąd podczas ewaluacji: {e}")
 
     def show_menu(self):
         model_name = type(self.model).__name__ if self.model else "BRAK"
@@ -183,8 +248,9 @@ class ConsoleApp:
         print("3. Zapisz model do pliku")
         print("4. Załaduj model z pliku")
         print("5. Przetestuj model (Predykcja)")
-        print("6. Wyczyść ekran")
-        print("7. Wyjście")
+        print("6. Ewaluacja modelu (Zbiór testowy)")
+        print("7. Wyczyść ekran")
+        print("8. Wyjście")
         print("----------------------------------------")
 
     def run(self):
@@ -204,8 +270,10 @@ class ConsoleApp:
                 case "5":
                     self.predict_workflow()
                 case "6":
-                    os.system("cls" if os.name == "nt" else "clear")
+                    self.evaluation_workflow()
                 case "7":
+                    os.system("cls" if os.name == "nt" else "clear")
+                case "8":
                     self.running = False
                 case _:
                     pass

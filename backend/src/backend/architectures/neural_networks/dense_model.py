@@ -1,5 +1,7 @@
-import tensorflow as tf
 from typing import Tuple
+
+import tensorflow as tf
+
 from backend.architectures.neural_networks.keras_base import KerasBaseModel
 
 

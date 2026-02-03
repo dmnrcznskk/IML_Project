@@ -1,14 +1,15 @@
-import pandas as pd
-import numpy as np
 from typing import List, Tuple, Union
 
+import numpy as np
+import pandas as pd
+
+from backend.data import balance
 from backend.data.providers import (
     BaseDatasetProvider,
     GermanDatasetProvider,
     PolishDatasetProvider,
     BelgiumDatasetProvider,
 )
-from backend.data import balance
 
 
 class DataPipeline:

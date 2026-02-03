@@ -1,5 +1,7 @@
 import os
+
 from PIL import Image
+
 
 def map_ppm_to_png(src_root_path: str, dst_root_path: str = "png_dataset") -> str:
     """

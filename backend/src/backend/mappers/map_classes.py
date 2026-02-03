@@ -1,4 +1,5 @@
-from typing import Dict, Union
+from typing import Dict
+
 
 def get_belgium_mapping() -> Dict[int, int]:
     """

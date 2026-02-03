@@ -1,10 +1,10 @@
-import numpy as np
-import pandas as pd
+from typing import Dict, Any, Optional
+
 import matplotlib.pyplot as plt
+import numpy as np
 import seaborn as sns
 from sklearn.metrics import classification_report, confusion_matrix, accuracy_score
-from typing import Dict, Any, Optional, List, Union
-import os
+
 from backend.architectures.base_model import BaseModel
 
 
